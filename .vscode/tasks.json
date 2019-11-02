@@ -1,0 +1,44 @@
+{
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build test cnc",
+      "type": "shell",
+      "command": "g++",
+      "args": [
+        "-g",
+        "-o",
+        "sometests",
+        "sometests.cpp", "arduino.cpp", "src/controller.cpp", "src/config.cpp", "src/state.cpp",
+        "-I",
+        "D:/MyProjects/cppProjects/someTests",
+        "-I",
+        "D:/MyProjects/cppProjects/someTests/include",
+        "-I",
+        "D:/MyProjects/cppProjects/someTests/src"
+      ],
+      // Use the standard less compilation problem matcher.
+      "problemMatcher": {
+        "owner": "cpp",
+        "fileLocation": [
+          "relative",
+          "${workspaceRoot}"
+        ],
+        "pattern": {
+          "regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "severity": 4,
+          "message": 5
+        }
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    }
+  ]
+}
