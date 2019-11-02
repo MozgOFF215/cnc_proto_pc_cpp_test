@@ -11,13 +11,13 @@
         "-g",
         "-o",
         "sometests",
-        "sometests.cpp", "arduino.cpp", "src/controller.cpp", "src/config.cpp", "src/state.cpp",
+        "test/sometests.cpp", "test/arduino.cpp", "src/controller.cpp", "src/config.cpp", "src/state.cpp",
         "-I",
-        "D:/MyProjects/cppProjects/someTests",
+        "test",
         "-I",
-        "D:/MyProjects/cppProjects/someTests/include",
+        "include",
         "-I",
-        "D:/MyProjects/cppProjects/someTests/src"
+        "src"
       ],
       // Use the standard less compilation problem matcher.
       "problemMatcher": {
