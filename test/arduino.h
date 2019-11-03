@@ -5,8 +5,8 @@ typedef unsigned char byte;
 typedef unsigned int uint32_t;
 
 uint32_t micros();
-void digitalWrite(int pin, int value);
-void analogWrite(int pin, int value);
+void digitalWrite(const char *pin, int value);
+void analogWrite(const char *pin, int value);
 
 extern int currentTime;
 
@@ -21,56 +21,56 @@ extern int currentTime;
 #define CORE_NUM_ANALOG		8
 #define CORE_NUM_PWM		9
 #define CORE_NUM_INTERRUPT	8
-#define PIN_D0		0
-#define PIN_D1		1
-#define PIN_D2		2
-#define PIN_D3		3
-#define PIN_D4		4
-#define PIN_D5		5
-#define PIN_D6		6
-#define PIN_D7		7
-#define PIN_E0		8
-#define PIN_E1		9
-#define PIN_C0		10
-#define PIN_C1		11
-#define PIN_C2		12
-#define PIN_C3		13
-#define PIN_C4		14
-#define PIN_C5		15
-#define PIN_C6		16
-#define PIN_C7		17
-#define PIN_E6		18
-#define PIN_E7		19
-#define PIN_SS		20
+#define PIN_D0		"PIN_D0"
+#define PIN_D1		"PIN_D1"
+#define PIN_D2		"PIN_D2"
+#define PIN_D3		"PIN_D3"
+#define PIN_D4		"PIN_D4"
+#define PIN_D5		"PIN_D5"
+#define PIN_D6		"PIN_D6"
+#define PIN_D7		"PIN_D7"
+#define PIN_E0		"PIN_E0"
+#define PIN_E1		"PIN_E1"
+#define PIN_C0		"PIN_C0"
+#define PIN_C1		"PIN_C1"
+#define PIN_C2		"PIN_C2"
+#define PIN_C3		"PIN_C3"
+#define PIN_C4		"PIN_C4"
+#define PIN_C5		"PIN_C5"
+#define PIN_C6		"PIN_C6"
+#define PIN_C7		"PIN_C7"
+#define PIN_E6		"PIN_E6"
+#define PIN_E7		"PIN_E7"
+#define PIN_SS		"PIN_SS"
 #define PIN_SCLK	21
 #define PIN_MOSI	22
 #define PIN_MISO	23
-#define PIN_B0		20
-#define PIN_B1		21
-#define PIN_B2		22
-#define PIN_B3		23
-#define PIN_B4		24
-#define PIN_B5		25
-#define PIN_B6		26
-#define PIN_B7		27
-#define PIN_A0		28
-#define PIN_A1		29
-#define PIN_A2		30
-#define PIN_A3		31
-#define PIN_A4		32
-#define PIN_A5		33
-#define PIN_A6		34
-#define PIN_A7		35
-#define PIN_E4		36
-#define PIN_E5		37
-#define PIN_F0		38
-#define PIN_F1		39
-#define PIN_F2		40
-#define PIN_F3		41
-#define PIN_F4		42
-#define PIN_F5		43
-#define PIN_F6		44
-#define PIN_F7		45
+#define PIN_B0		"PIN_B0"
+#define PIN_B1		"PIN_B1"
+#define PIN_B2		"PIN_B2"
+#define PIN_B3		"PIN_B3"
+#define PIN_B4		"PIN_B4"
+#define PIN_B5		"PIN_B5"
+#define PIN_B6		"PIN_B6"
+#define PIN_B7		"PIN_B7"
+#define PIN_A0		"PIN_A0"
+#define PIN_A1		"PIN_A1"
+#define PIN_A2		"PIN_A2"
+#define PIN_A3		"PIN_A3"
+#define PIN_A4		"PIN_A4"
+#define PIN_A5		"PIN_A5"
+#define PIN_A6		"PIN_A6"
+#define PIN_A7		"PIN_A7"
+#define PIN_E4		"PIN_E4"
+#define PIN_E5		"PIN_E5"
+#define PIN_F0		"PIN_F0"
+#define PIN_F1		"PIN_F1"
+#define PIN_F2		"PIN_F2"
+#define PIN_F3		"PIN_F3"
+#define PIN_F4		"PIN_F4"
+#define PIN_F5		"PIN_F5"
+#define PIN_F6		"PIN_F6"
+#define PIN_F7		"PIN_F7"
 #define CORE_PIN0_BIT		0
 #define CORE_PIN1_BIT		1
 #define CORE_PIN2_BIT		2

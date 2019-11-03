@@ -6,7 +6,7 @@
     {
       "label": "build test cnc",
       "type": "shell",
-      "command": "mingw32-make --trace --warn-undefined-variables",
+      "command": "mingw32-make --trace --warn-undefined-variables", // -B to force rebuild
       "group": {
         "kind": "build",
         "isDefault": true

@@ -7,12 +7,12 @@ uint32_t micros()
   return currentTime;
 }
 
-void digitalWrite(int pin, int value)
+void digitalWrite(const char *pin, int value)
 {
-  printf("digitalWrite(pin: %d, val: %d)\n");
+  printf("digitalWrite(%s, %d)\n", pin, value);
 }
 
-void analogWrite(int pin, int value)
+void analogWrite(const char *pin, int value)
 {
-  printf("analogWrite(pin: %d, val: %d)\n");
+  printf("analogWrite(%s, %d)\n", pin, value);
 }

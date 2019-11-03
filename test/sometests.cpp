@@ -18,7 +18,7 @@ int main()
       long currentPos = i < size ? pos[i] : pos[size - 1];
       X_state.currentPos = currentPos;
 
-      printf("### iteration %d, currentPos %d, destPos %d, time %d\n", i, X_state.currentPos, X_state.destinationPos, currentTime);
+      printf("### iteration %d, currentPos %ld, destPos %ld, time %d\n", i, X_state.currentPos, X_state.destinationPos, currentTime);
 
       controller(&X_config, &X_state, &X_pidState);
 
@@ -36,16 +36,13 @@ int main()
 
 void printPidState(pidState *ps)
 {
-   printf("--- PID state %s ----\n", ps->axis_name);
-   printf("prevTime - %d\n", ps->prevTime);
-   printf("prevPos  - %d\n", ps->prevPos);
-   printf("prevIntg - %d\n", ps->prevIntg);
-   printf("prevE    - %d\n", ps->prevE);
-   printf("prevDeltaTime - %d\n", ps->prevDeltaTime);
-   printf("kP - %f\n", ps->kP);
-   printf("kI - %f\n", ps->kI);
-   printf("kD - %f\n", ps->kD);
-   printf("MV.pwm: - %d\n", ps->MV.pwm);
-   printf("MV.direction: - %s\n", ps->MV.direction == FORWARD ? "FORWARD" : "BACKWARD");
+   // printf("--- PID state %s ----\n", ps->axis_name);
+   printf("prevTime - %ld\n", ps->prevTime);
+   printf("prevPos  - %ld\n", ps->prevPos);
+   printf("prevIntg - %ld\n", ps->prevIntg);
+   printf("prevE    - %ld\n", ps->prevE);
+   printf("prevDeltaTime - %ld\n", ps->prevDeltaTime);
+   printf("kP=%f, kI=%f, kD=%f \n", ps->kP, ps->kI, ps->kD);
+   printf("MV.pwm=%d, MV.direction=%s\n", ps->MV.pwm, ps->MV.direction == FORWARD ? "FORWARD" : "BACKWARD");
    printf("isFirstCycle - %s\n", ps->isFirstCycle ? "true" : "false");
 }
