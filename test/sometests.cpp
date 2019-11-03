@@ -7,10 +7,10 @@ int main()
    currentTime = 0;
    initController(&X_pidState);
 
-   X_state.isStoped = false;
+   //X_state.isStoped = false;
 
    X_state.destinationPos = 100;
-   long pos[] = {0, 20, 40, 70, 110, 120, 110, 90, 95, 100, 105, 100, 98, 100, 100};
+   long pos[] = {0, 20, 40, 70, 110, 120, 110, 90, 95, 100, 105, 100, 98, 100, 100, 120, 100};
    int size = (sizeof(pos) / sizeof(*pos));
 
    for (int i = 0; i < size + 5; i++)
@@ -18,7 +18,7 @@ int main()
       long currentPos = i < size ? pos[i] : pos[size - 1];
       X_state.currentPos = currentPos;
 
-      printf("### iteration %d, currentPos %d, time %d\n", i, currentPos, currentTime);
+      printf("### iteration %d, currentPos %d, destPos %d, time %d\n", i, X_state.currentPos, X_state.destinationPos, currentTime);
 
       controller(&X_config, &X_state, &X_pidState);
 

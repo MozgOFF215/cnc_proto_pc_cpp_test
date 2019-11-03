@@ -9,10 +9,10 @@ uint32_t micros()
 
 void digitalWrite(int pin, int value)
 {
-  printf("digitalWrite(pin: %d, val: %d)");
+  printf("digitalWrite(pin: %d, val: %d)\n");
 }
 
 void analogWrite(int pin, int value)
 {
-  printf("analogWrite(pin: %d, val: %d)");
+  printf("analogWrite(pin: %d, val: %d)\n");
 }

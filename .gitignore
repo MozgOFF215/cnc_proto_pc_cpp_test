@@ -8,4 +8,4 @@ controller.o
 moving.o
 sometests.o
 state.o
-sometests.exe
+tests.exe
