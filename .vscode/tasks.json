@@ -6,35 +6,7 @@
     {
       "label": "build test cnc",
       "type": "shell",
-      "command": "g++",
-      "args": [
-        "-g",
-        "-o",
-        "sometests",
-        "test/sometests.cpp", "test/arduino.cpp", "src/controller.cpp", "src/config.cpp", "src/state.cpp",
-        "-I",
-        "test",
-        "-I",
-        "include",
-        "-I",
-        "src"
-      ],
-      // Use the standard less compilation problem matcher.
-      "problemMatcher": {
-        "owner": "cpp",
-        "fileLocation": [
-          "relative",
-          "${workspaceRoot}"
-        ],
-        "pattern": {
-          "regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
-          "file": 1,
-          "line": 2,
-          "column": 3,
-          "severity": 4,
-          "message": 5
-        }
-      },
+      "command": "mingw32-make",
       "group": {
         "kind": "build",
         "isDefault": true

@@ -1,9 +1,18 @@
 #include "header.h"
 
-int timeCounter;
+int currentTime;
 
 uint32_t micros()
 {
-  timeCounter++;
-  return 0;
+  return currentTime;
+}
+
+void digitalWrite(int pin, int value)
+{
+  printf("digitalWrite(pin: %d, val: %d)");
+}
+
+void analogWrite(int pin, int value)
+{
+  printf("analogWrite(pin: %d, val: %d)");
 }

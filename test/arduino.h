@@ -5,9 +5,13 @@ typedef unsigned char byte;
 typedef unsigned int uint32_t;
 
 uint32_t micros();
+void digitalWrite(int pin, int value);
+void analogWrite(int pin, int value);
 
-extern int timeCounter;
+extern int currentTime;
 
+#define HIGH 1
+#define LOW 0
 
 ////////////////////////////////////
 // Teensy++ 1.0 & 2.0
