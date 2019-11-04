@@ -9,6 +9,7 @@ void digitalWrite(const char *pin, int value);
 void analogWrite(const char *pin, int value);
 
 extern int currentTime;
+extern bool no_prompt;
 
 #define HIGH 1
 #define LOW 0

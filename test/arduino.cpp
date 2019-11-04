@@ -1,6 +1,7 @@
 #include "header.h"
 
 int currentTime;
+bool no_prompt;
 
 uint32_t micros()
 {
@@ -9,10 +10,12 @@ uint32_t micros()
 
 void digitalWrite(const char *pin, int value)
 {
-  printf("digitalWrite(%s, %d)\n", pin, value);
+  if (!no_prompt)
+    printf("digitalWrite(%s, %d)\n", pin, value);
 }
 
 void analogWrite(const char *pin, int value)
 {
-  printf("analogWrite(%s, %d)\n", pin, value);
+  if (!no_prompt)
+    printf("analogWrite(%s, %d)\n", pin, value);
 }

@@ -9,3 +9,4 @@ moving.o
 sometests.o
 state.o
 tests.exe
+test_result.csv

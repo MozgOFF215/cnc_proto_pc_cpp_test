@@ -1,37 +1,116 @@
 #include "header.h"
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <algorithm>
+#include <string>
 
 void printPidState(pidState *ps);
+void printGraph(int val);
+void printGraph(float val, float min, float max);
+
+struct Result
+{
+   long iteration;
+   long currTime;
+   long currentPos;
+   long destPos;
+   long prevTime;
+   long prevPos;
+   float prevIntg;
+   long prevE;
+   long prevDeltaTime;
+   float kP;
+   float kI;
+   float kD;
+   int pwm;
+   bool isFirstCycle;
+};
+
+void saveToCsv(std::vector<Result> *results);
+void addResult(std::vector<Result> *results, Result *result, pidState *ps, long iteration, long currentPos, long destPos, long currentTime);
 
 int main()
 {
    currentTime = 0;
+   no_prompt = true;
    initController(&X_pidState);
 
-   //X_state.isStoped = false;
+   stop(&X_config, &X_state, "init PID test");
 
-   X_state.destinationPos = 100;
-   long pos[] = {0, 20, 40, 70, 110, 120, 110, 90, 95, 100, 105, 100, 98, 100, 100, 120, 100};
-   int size = (sizeof(pos) / sizeof(*pos));
+   std::vector<Result> results;
 
-   for (int i = 0; i < size + 5; i++)
+   long pos[] = {0, 0, 0, 20, 40, 70, 110, 120, 110, 90, 95, 100, 105, 100, 98, 100, 100, 100, 100};
+   long dest[] = {0, 0, 100};
+
+   int sizePosArray = (sizeof(pos) / sizeof(*pos));
+   int sizeDestArray = (sizeof(dest) / sizeof(*dest));
+
+   long prevPos = pos[0];
+
+   for (int i = 0; i < sizePosArray + 5; i++)
    {
-      long currentPos = i < size ? pos[i] : pos[size - 1];
-      X_state.currentPos = currentPos;
+      long currPos = i < sizePosArray ? pos[i] : pos[sizePosArray - 1];
+      long delta = currPos - prevPos;
+      float gain = delta / 1000.0;
 
-      printf("### iteration %d, currentPos %ld, destPos %ld, time %d\n", i, X_state.currentPos, X_state.destinationPos, currentTime);
+      for (int j = 0; j < 1000; j++)
+      {
+         Result result;
 
-      controller(&X_config, &X_state, &X_pidState);
+         long destPos = i < sizeDestArray ? dest[i] : dest[sizeDestArray - 1];
+         X_state.destinationPos = destPos;
 
-      printPidState(&X_pidState);
+         long currentPos = prevPos + gain * j;
+         X_state.currentPos = currentPos;
 
-      printf("---------------------------\n");
+         if (!no_prompt)
+            printf("### iteration %d, currentPos %ld, destPos %ld, time %d\n", i * j, X_state.currentPos, X_state.destinationPos, currentTime);
 
-      currentTime++;
+         controller(&X_config, &X_state, &X_pidState);
+
+         if (!no_prompt)
+            printPidState(&X_pidState);
+
+         addResult(&results, &result, &X_pidState, i * j, currentPos, destPos, currentTime);
+
+         if (no_prompt && (j % 100 == 0))
+            printGraph(X_pidState.MV.pwm);
+
+         if (!no_prompt)
+            printf("---------------------------\n");
+
+         currentTime += 100; //µS
+      }
+
+      prevPos = currPos;
    }
+
+   saveToCsv(&results);
 
    getchar();
 
    return 0;
+}
+
+void addResult(std::vector<Result> *results, Result *result, pidState *ps, long iteration, long currentPos, long destPos, long currentTime)
+{
+   result->iteration = iteration;
+   result->currTime = currentTime;
+   result->currentPos = currentPos;
+   result->destPos = destPos;
+   result->pwm = ps->MV.direction == FORWARD ? ps->MV.pwm : -(ps->MV.pwm);
+   result->prevIntg = ps->prevIntg;
+   result->isFirstCycle = ps->isFirstCycle;
+   result->kD = ps->kD;
+   result->kI = ps->kI;
+   result->kP = ps->kP;
+   result->prevDeltaTime = ps->prevDeltaTime;
+   result->prevE = ps->prevE;
+   result->prevPos = ps->prevPos;
+   result->prevTime = ps->prevTime;
+
+   results->push_back(*result);
 }
 
 void printPidState(pidState *ps)
@@ -39,10 +118,86 @@ void printPidState(pidState *ps)
    // printf("--- PID state %s ----\n", ps->axis_name);
    printf("prevTime - %ld\n", ps->prevTime);
    printf("prevPos  - %ld\n", ps->prevPos);
-   printf("prevIntg - %ld\n", ps->prevIntg);
+   printf("prevIntg - %f\n", ps->prevIntg);
    printf("prevE    - %ld\n", ps->prevE);
    printf("prevDeltaTime - %ld\n", ps->prevDeltaTime);
    printf("kP=%f, kI=%f, kD=%f \n", ps->kP, ps->kI, ps->kD);
    printf("MV.pwm=%d, MV.direction=%s\n", ps->MV.pwm, ps->MV.direction == FORWARD ? "FORWARD" : "BACKWARD");
    printf("isFirstCycle - %s\n", ps->isFirstCycle ? "true" : "false");
+}
+
+void printGraph(int val)
+{
+   char graph[257];
+   for (int i = 0; i < 257; i++)
+   {
+      graph[i] = (i == val) ? '#' : ' ';
+
+      if (i == 256)
+         graph[i] = 0;
+   }
+
+   printf("%5d%s\n", val, graph);
+}
+
+void printGraphf(float val, float min, float max)
+{
+   char graph[257];
+   for (int i = 0; i < 257; i++)
+   {
+      graph[i] = (i == val) ? '#' : ' ';
+
+      if (i == 256)
+         graph[i] = 0;
+   }
+
+   printf("%5.2f%s\n", val, graph);
+}
+
+void saveToCsv(std::vector<Result> *results)
+{
+   // a;b;c semicolum is separator
+   // 3,1415 coma is decimal point
+
+   std::ofstream myfile;
+   myfile.open("test_result.csv");
+   //myfile << "This is the first cell in the first column.\n";
+
+   myfile << "iteration;currTime;currentPos;destPos;prevIntg;pwm;isFirstCycle;kD;kI;kP;prevDeltaTime;prevE;prevPos;prevTime\n";
+
+   std::string str;
+
+   for (std::vector<Result>::iterator result = results->begin(); result != results->end(); ++result)
+   {
+      myfile << result->iteration << ";";
+      myfile << result->currTime << ";";
+      myfile << result->currentPos << ";";
+      myfile << result->destPos << ";";
+
+      str = std::to_string(result->prevIntg);
+      std::replace(str.begin(), str.end(), '.', ',');
+      myfile << str << ";";
+
+      myfile << result->pwm << ";";
+      myfile << result->isFirstCycle << ";";
+
+      str = std::to_string(result->kD);
+      std::replace(str.begin(), str.end(), '.', ',');
+      myfile << str << ";";
+
+      str = std::to_string(result->kI);
+      std::replace(str.begin(), str.end(), '.', ',');
+      myfile << str << ";";
+
+      str = std::to_string(result->kP);
+      std::replace(str.begin(), str.end(), '.', ',');
+      myfile << str << ";";
+
+      myfile << result->prevDeltaTime << ";";
+      myfile << result->prevE << ";";
+      myfile << result->prevPos << ";";
+      myfile << result->prevTime << "\n";
+   }
+
+   myfile.close();
 }
