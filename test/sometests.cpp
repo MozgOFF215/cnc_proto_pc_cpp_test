@@ -34,7 +34,22 @@ int main()
 {
    currentTime = 0;
    no_prompt = true;
-   initController(&X_pidState);
+   //initController(&X_pidState);
+   X_pidState.kP = 1;
+   X_pidState.kI = 0;
+
+   char codes[3][20] = {"G g -l6", "G0034 M86 X34 ", "d8782 x0 l"};
+   for (int i = 0; i < 3; i++)
+   {
+      const char *p = codes[i];
+      parserCode c;
+      do
+      {
+         c = getCode(p);
+         printf("command [%s] letter [%c] code [%d]\n", p, c.letter, c.codenum);
+         p = c.pNextSymbol;
+      } while (c.pNextSymbol != nullptr);
+   }
 
    stop(&X_config, &X_state, "init PID test");
 

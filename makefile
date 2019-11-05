@@ -2,7 +2,7 @@ PROG = tests
 CC = g++
 CPPFLAGS = -g -Wall -I include -I test -I src -DTEST_PC_CPP
 LDFLAGS = # libs
-OBJS = sometests.o arduino.o controller.o config.o state.o moving.o
+OBJS = sometests.o arduino.o controller.o config.o state.o moving.o parser_my.o
 
 $(PROG) : $(OBJS)
 	$(CC) $(LDFLAGS) -o $(PROG) $(OBJS)
@@ -25,3 +25,5 @@ state.o : src/state.cpp src/state.h include/*.h
 moving.o : src/moving.cpp src/moving.h include/*.h
 	$(CC) $(CPPFLAGS) -c src/moving.cpp
 
+parser_my.o : src/parser_my.cpp src/parser_my.h include/*.h
+	$(CC) $(CPPFLAGS) -c src/parser_my.cpp

@@ -10,3 +10,4 @@ sometests.o
 state.o
 tests.exe
 test_result.csv
+parser_my.o
