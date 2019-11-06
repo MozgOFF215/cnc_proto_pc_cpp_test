@@ -1,9 +1,11 @@
-#include "header.h"
 #include <iostream>
 #include <fstream>
 #include <vector>
 #include <algorithm>
 #include <string>
+#include "arduino.h"
+#include "controller.h"
+#include "parser_my.h"
 
 void printPidState(pidState *ps);
 void printGraph(int val);
@@ -51,7 +53,7 @@ int main()
       } while (c.pNextSymbol != nullptr);
    }
 
-   stop(&X_config, &X_state, "init PID test");
+   X_config.Stop(&X_state, "init PID test");
 
    std::vector<Result> results;
 
@@ -137,7 +139,7 @@ void printPidState(pidState *ps)
    printf("prevE    - %ld\n", ps->prevE);
    printf("prevDeltaTime - %ld\n", ps->prevDeltaTime);
    printf("kP=%f, kI=%f, kD=%f \n", ps->kP, ps->kI, ps->kD);
-   printf("MV.pwm=%d, MV.direction=%s\n", ps->MV.pwm, ps->MV.direction == FORWARD ? "FORWARD" : "BACKWARD");
+   printf("MV.pwm=%ld, MV.direction=%s\n", ps->MV.pwm, ps->MV.direction == FORWARD ? "FORWARD" : "BACKWARD");
    printf("isFirstCycle - %s\n", ps->isFirstCycle ? "true" : "false");
 }
 
