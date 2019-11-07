@@ -9,7 +9,7 @@
 
 void printPidState(pidState *ps);
 void printGraph(int val);
-void printGraph(float val, float min, float max);
+void printGraph(double val, double min, double max);
 
 struct Result
 {
@@ -19,12 +19,12 @@ struct Result
    long destPos;
    long prevTime;
    long prevPos;
-   float prevIntg;
+   double prevIntg;
    long prevE;
    long prevDeltaTime;
-   float kP;
-   float kI;
-   float kD;
+   double kP;
+   double kI;
+   double kD;
    int pwm;
    bool isFirstCycle;
 };
@@ -69,7 +69,7 @@ int main()
    {
       long currPos = i < sizePosArray ? pos[i] : pos[sizePosArray - 1];
       long delta = currPos - prevPos;
-      float gain = delta / 1000.0;
+      double gain = delta / 1000.0;
 
       for (int j = 0; j < 1000; j++)
       {
@@ -157,7 +157,7 @@ void printGraph(int val)
    printf("%5d%s\n", val, graph);
 }
 
-void printGraphf(float val, float min, float max)
+void printGraphf(double val, double min, double max)
 {
    char graph[257];
    for (int i = 0; i < 257; i++)
