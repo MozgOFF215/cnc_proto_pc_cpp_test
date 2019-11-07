@@ -17,15 +17,17 @@ struct Result
    long currTime;
    long currentPos;
    long destPos;
-   long prevTime;
-   long prevPos;
-   double prevIntg;
-   long prevE;
-   long prevDeltaTime;
+   long ts;
+   double pMV;
+   double iMV;
+   double dMV;
+   int pwm;
    double kP;
    double kI;
    double kD;
-   int pwm;
+   long position;
+   long dt;
+   long e;
    bool isFirstCycle;
 };
 
@@ -38,7 +40,8 @@ int main()
    no_prompt = true;
    //initController(&X_pidState);
    X_pidState.kP = 1;
-   X_pidState.kI = 0;
+   X_pidState.kI = 0.5;
+   X_pidState.kD = 0.5;
 
    char codes[3][20] = {"G g -l6", "G0034 M86 X34 ", "d8782 x0 l"};
    for (int i = 0; i < 3; i++)
@@ -89,7 +92,7 @@ int main()
          if (!no_prompt)
             printPidState(&X_pidState);
 
-         addResult(&results, &result, &X_pidState, i * j, currentPos, destPos, currentTime);
+         addResult(&results, &result, &X_pidState, i * 1000 + j, currentPos, destPos, currentTime);
 
          if (no_prompt && (j % 100 == 0))
             printGraph(X_pidState.MV.pwm);
@@ -117,15 +120,17 @@ void addResult(std::vector<Result> *results, Result *result, pidState *ps, long 
    result->currentPos = currentPos;
    result->destPos = destPos;
    result->pwm = ps->MV.direction == FORWARD ? ps->MV.pwm : -(ps->MV.pwm);
-   result->prevIntg = ps->prevIntg;
+   result->pMV = ps->pMV;
+   result->iMV = ps->iMV;
+   result->dMV = ps->dMV;
    result->isFirstCycle = ps->isFirstCycle;
    result->kD = ps->kD;
    result->kI = ps->kI;
    result->kP = ps->kP;
-   result->prevDeltaTime = ps->prevDeltaTime;
-   result->prevE = ps->prevE;
-   result->prevPos = ps->prevPos;
-   result->prevTime = ps->prevTime;
+   result->dt = ps->dt;
+   result->e = ps->e;
+   result->position = ps->position;
+   result->ts = ps->ts;
 
    results->push_back(*result);
 }
@@ -133,11 +138,11 @@ void addResult(std::vector<Result> *results, Result *result, pidState *ps, long 
 void printPidState(pidState *ps)
 {
    // printf("--- PID state %s ----\n", ps->axis_name);
-   printf("prevTime - %ld\n", ps->prevTime);
-   printf("prevPos  - %ld\n", ps->prevPos);
-   printf("prevIntg - %f\n", ps->prevIntg);
-   printf("prevE    - %ld\n", ps->prevE);
-   printf("prevDeltaTime - %ld\n", ps->prevDeltaTime);
+   printf("prevTime - %ld\n", ps->ts);
+   printf("prevPos  - %ld\n", ps->position);
+   printf("prevIntg - %f\n", ps->iMV);
+   printf("prevE    - %ld\n", ps->e);
+   printf("prevDeltaTime - %ld\n", ps->dt);
    printf("kP=%f, kI=%f, kD=%f \n", ps->kP, ps->kI, ps->kD);
    printf("MV.pwm=%ld, MV.direction=%s\n", ps->MV.pwm, ps->MV.direction == FORWARD ? "FORWARD" : "BACKWARD");
    printf("isFirstCycle - %s\n", ps->isFirstCycle ? "true" : "false");
@@ -180,7 +185,7 @@ void saveToCsv(std::vector<Result> *results)
    myfile.open("test_result.csv");
    //myfile << "This is the first cell in the first column.\n";
 
-   myfile << "iteration;currTime;currentPos;destPos;prevIntg;pwm;isFirstCycle;kD;kI;kP;prevDeltaTime;prevE;prevPos;prevTime\n";
+   myfile << "iteration;currTime;currentPos;position;destPos;pMV;iMV;dMV;pwm;kP;kI;kD;e;ts;dt;isFirstCycle\n";
 
    std::string str;
 
@@ -189,16 +194,24 @@ void saveToCsv(std::vector<Result> *results)
       myfile << result->iteration << ";";
       myfile << result->currTime << ";";
       myfile << result->currentPos << ";";
+      myfile << result->position << ";";
       myfile << result->destPos << ";";
 
-      str = std::to_string(result->prevIntg);
+      str = std::to_string(result->pMV);
+      std::replace(str.begin(), str.end(), '.', ',');
+      myfile << str << ";";
+
+      str = std::to_string(result->iMV);
+      std::replace(str.begin(), str.end(), '.', ',');
+      myfile << str << ";";
+
+      str = std::to_string(result->dMV);
       std::replace(str.begin(), str.end(), '.', ',');
       myfile << str << ";";
 
       myfile << result->pwm << ";";
-      myfile << result->isFirstCycle << ";";
 
-      str = std::to_string(result->kD);
+      str = std::to_string(result->kP);
       std::replace(str.begin(), str.end(), '.', ',');
       myfile << str << ";";
 
@@ -206,14 +219,14 @@ void saveToCsv(std::vector<Result> *results)
       std::replace(str.begin(), str.end(), '.', ',');
       myfile << str << ";";
 
-      str = std::to_string(result->kP);
+      str = std::to_string(result->kD);
       std::replace(str.begin(), str.end(), '.', ',');
       myfile << str << ";";
 
-      myfile << result->prevDeltaTime << ";";
-      myfile << result->prevE << ";";
-      myfile << result->prevPos << ";";
-      myfile << result->prevTime << "\n";
+      myfile << result->e << ";";
+      myfile << result->ts << ";";
+      myfile << result->dt << ";";
+      myfile << result->isFirstCycle << "\n";
    }
 
    myfile.close();
