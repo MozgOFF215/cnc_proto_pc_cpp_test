@@ -7,7 +7,7 @@
 #include "controller.h"
 #include "parser_my.h"
 
-void printPidState(pidState *ps);
+void printPidState(State *st);
 void printGraph(int val);
 void printGraph(double val, double min, double max);
 
@@ -32,16 +32,16 @@ struct Result
 };
 
 void saveToCsv(std::vector<Result> *results);
-void addResult(std::vector<Result> *results, Result *result, pidState *ps, long iteration, long currentPos, long destPos, long currentTime);
+void addResult(std::vector<Result> *results, Result *result, State *st, long iteration, long currentPos, long destPos, long currentTime);
 
 int main()
 {
    currentTime = 0;
    no_prompt = true;
    //initController(&X_pidState);
-   X_pidState.kP = 1;
-   X_pidState.kI = 0.5;
-   X_pidState.kD = 0.5;
+   X_state.kP = 1;
+   X_state.kI = 0.5;
+   X_state.kD = 0.5;
 
    char codes[3][20] = {"G g -l6", "G0034 M86 X34 ", "d8782 x0 l"};
    for (int i = 0; i < 3; i++)
@@ -56,7 +56,7 @@ int main()
       } while (c.pNextSymbol != nullptr);
    }
 
-   X_config.Stop(&X_state, "init PID test");
+   X_state.Stop(&X_state, "init PID test");
 
    std::vector<Result> results;
 
@@ -79,23 +79,23 @@ int main()
          Result result;
 
          long destPos = i < sizeDestArray ? dest[i] : dest[sizeDestArray - 1];
-         X_state.destinationPos = destPos;
+         X_state.goTo_Strokes(destPos);
 
          long currentPos = prevPos + gain * j;
          X_state.currentPos = currentPos;
 
          if (!no_prompt)
-            printf("### iteration %d, currentPos %ld, destPos %ld, time %d\n", i * j, X_state.currentPos, X_state.destinationPos, currentTime);
+            printf("### iteration %d, currentPos %ld, destPos %ld, time %d\n", i * j, X_state.currentPos, X_state.getDestination(), currentTime);
 
-         controller(&X_config, &X_state, &X_pidState);
+         controller( &X_state);
 
          if (!no_prompt)
-            printPidState(&X_pidState);
+            printPidState(&X_state);
 
-         addResult(&results, &result, &X_pidState, i * 1000 + j, currentPos, destPos, currentTime);
+         addResult(&results, &result, &X_state, i * 1000 + j, currentPos, destPos, currentTime);
 
          if (no_prompt && (j % 100 == 0))
-            printGraph(X_pidState.MV.pwm);
+            printGraph(X_state.MV.pwm);
 
          if (!no_prompt)
             printf("---------------------------\n");
@@ -113,39 +113,39 @@ int main()
    return 0;
 }
 
-void addResult(std::vector<Result> *results, Result *result, pidState *ps, long iteration, long currentPos, long destPos, long currentTime)
+void addResult(std::vector<Result> *results, Result *result, State *st, long iteration, long currentPos, long destPos, long currentTime)
 {
    result->iteration = iteration;
    result->currTime = currentTime;
    result->currentPos = currentPos;
    result->destPos = destPos;
-   result->pwm = ps->MV.direction == FORWARD ? ps->MV.pwm : -(ps->MV.pwm);
-   result->pMV = ps->pMV;
-   result->iMV = ps->iMV;
-   result->dMV = ps->dMV;
-   result->isFirstCycle = ps->isFirstCycle;
-   result->kD = ps->kD;
-   result->kI = ps->kI;
-   result->kP = ps->kP;
-   result->dt = ps->dt;
-   result->e = ps->e;
-   result->position = ps->position;
-   result->ts = ps->ts;
+   result->pwm = st->MV.direction == FORWARD ? st->MV.pwm : -(st->MV.pwm);
+   result->pMV = st->pMV;
+   result->iMV = st->iMV;
+   result->dMV = st->dMV;
+   result->isFirstCycle = st->isFirstCycle;
+   result->kD = st->kD;
+   result->kI = st->kI;
+   result->kP = st->kP;
+   result->dt = st->dt;
+   result->e = st->e;
+   result->position = st->position;
+   result->ts = st->ts;
 
    results->push_back(*result);
 }
 
-void printPidState(pidState *ps)
+void printPidState(State *st)
 {
    // printf("--- PID state %s ----\n", ps->axis_name);
-   printf("prevTime - %ld\n", ps->ts);
-   printf("prevPos  - %ld\n", ps->position);
-   printf("prevIntg - %f\n", ps->iMV);
-   printf("prevE    - %ld\n", ps->e);
-   printf("prevDeltaTime - %ld\n", ps->dt);
-   printf("kP=%f, kI=%f, kD=%f \n", ps->kP, ps->kI, ps->kD);
-   printf("MV.pwm=%ld, MV.direction=%s\n", ps->MV.pwm, ps->MV.direction == FORWARD ? "FORWARD" : "BACKWARD");
-   printf("isFirstCycle - %s\n", ps->isFirstCycle ? "true" : "false");
+   printf("prevTime - %ld\n", st->ts);
+   printf("prevPos  - %ld\n", st->position);
+   printf("prevIntg - %f\n", st->iMV);
+   printf("prevE    - %ld\n", st->e);
+   printf("prevDeltaTime - %ld\n", st->dt);
+   printf("kP=%f, kI=%f, kD=%f \n", st->kP, st->kI, st->kD);
+   printf("MV.pwm=%ld, MV.direction=%s\n", st->MV.pwm, st->MV.direction == FORWARD ? "FORWARD" : "BACKWARD");
+   printf("isFirstCycle - %s\n", st->isFirstCycle ? "true" : "false");
 }
 
 void printGraph(int val)
