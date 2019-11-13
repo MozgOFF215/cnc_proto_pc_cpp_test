@@ -6,10 +6,17 @@
 #include "arduino.h"
 #include "controller.h"
 #include "parser_my.h"
+#include "rs232.h"
+#include "vector.h"
 
 void printPidState(State *st);
 void printGraph(int val);
 void printGraph(double val, double min, double max);
+void send(const char *str)
+{
+   RS232_cputs(0, str);
+   printf("send:%s", str);
+}
 
 struct Result
 {
@@ -33,9 +40,13 @@ struct Result
 
 void saveToCsv(std::vector<Result> *results);
 void addResult(std::vector<Result> *results, Result *result, State *st, long iteration, long currentPos, long destPos, long currentTime);
+int test_parser();
 
 int main()
 {
+   test_parser();
+   return (0);
+
    currentTime = 0;
    no_prompt = true;
    //initController(&X_pidState);
@@ -43,18 +54,17 @@ int main()
    X_state.kI = 0.5;
    X_state.kD = 0.5;
 
-   char codes[3][20] = {"G g -l6", "G0034 M86 X34 ", "d8782 x0 l"};
+   //int *p_darr = new parserCode[1];
+
+   char codes[3][100] = {"N-1 G0 X200.3 Y-2.500 *255", "M150;X50", "G0 X-10.1 ; jkjdkjsdj"};
    for (int i = 0; i < 3; i++)
    {
-      const char *p = codes[i];
-      parserCode c;
-      do
-      {
-         c = getCode(p);
-         printf("command [%s] letter [%c] code [%d]\n", p, c.letter, c.codenum);
-         p = c.pNextSymbol;
-      } while (c.pNextSymbol != nullptr);
+      parse_my((const char *)codes[i], &send);
+      //printf("GO\n");
    }
+
+   getchar();
+   return 0;
 
    X_state.Stop(&X_state, "init PID test");
 
@@ -87,7 +97,7 @@ int main()
          if (!no_prompt)
             printf("### iteration %d, currentPos %ld, destPos %ld, time %d\n", i * j, X_state.currentPos, X_state.getDestination(), currentTime);
 
-         controller( &X_state);
+         controller(&X_state);
 
          if (!no_prompt)
             printPidState(&X_state);
@@ -111,6 +121,55 @@ int main()
    getchar();
 
    return 0;
+}
+
+int test_parser()
+{
+   //-------------------------------------------------------------------------------------------------------------------------
+
+   int n,             //i,
+       cport_nr = 0,  /* /dev/ttyS0 (COM1 on windows) */
+       bdrate = 9600; /* 9600 baud */
+
+   unsigned char buf[4096];
+
+   char mode[] = {'8', 'N', '1', 0};
+
+   if (RS232_OpenComport(cport_nr, bdrate, mode, 0))
+   {
+      printf("Can not open comport\n");
+
+      return (0);
+   }
+
+   printf("waiting...\n");
+
+   while (1)
+   {
+      n = RS232_PollComport(cport_nr, buf, 4095);
+
+      if (n > 0)
+      {
+         buf[n] = 0; // always put a "null" at the end of a string!
+
+         /* 
+         for (i = 0; i < n; i++)
+         {
+            if (buf[i] < 32) // replace unreadable control-codes by dots 
+            {
+               buf[i] = '.';
+            }
+         }
+*/
+         printf("recieve:%s", (char *)buf);
+
+         parse_my((const char *)buf, &send);
+      }
+
+      Sleep(100);
+   }
+
+   //-------------------------------------------------------------------------------------------------------------------------
 }
 
 void addResult(std::vector<Result> *results, Result *result, State *st, long iteration, long currentPos, long destPos, long currentTime)
